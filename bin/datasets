@@ -8,7 +8,7 @@ from recommender_datasets import movielens, output, verification
 def download_movielens():
 
     params = (
-        ('movielens_100k',
+        ('movielens_100K',
          movielens.read_movielens_100K),
         ('movielens_1M',
          movielens.read_movielens_1M),
