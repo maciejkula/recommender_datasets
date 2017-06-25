@@ -1,3 +1,4 @@
+import itertools
 import os
 import zipfile
 
@@ -68,7 +69,7 @@ def read_movielens_20M():
                                 'movielens',
                                 'movielens_20M.zip')
 
-    archive_path = os.path.join('ml-20M100K', 'ratings.dat')
+    archive_path = os.path.join('ml-20m', 'ratings.csv')
 
-    for line in _read_data(zip_path, archive_path):
-        yield _parse_line(line, separator='::')
+    for line in itertools.islice(_read_data(zip_path, archive_path), 1, None):
+        yield _parse_line(line, separator=',')

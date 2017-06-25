@@ -38,14 +38,14 @@ def _serialize(row):
 
 
 def write_csv_data(filename, data,
-                   header=('uid', 'iid', 'rating', 'timestamp')):
+                   header=('user_id', 'item_id', 'rating', 'timestamp')):
 
     output_dir = os.path.join(_common.get_data_home(), 'output')
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    path = os.path.join(output_dir, filename)
+    path = os.path.join(output_dir, filename) + '.zip'
 
     with zipfile.ZipFile(path, mode='w') as archive:
         with archive.open('data.csv', mode='w') as output_file:
@@ -55,8 +55,7 @@ def write_csv_data(filename, data,
                 output_file.write(_serialize(row))
 
 
-def write_hdf5_data(filename, data,
-                    header=('uid', 'iid', 'rating', 'timestamp')):
+def write_hdf5_data(filename, data):
 
     uids, iids, ratings, timestamps = _to_numpy(data)
 
@@ -68,8 +67,8 @@ def write_hdf5_data(filename, data,
     path = os.path.join(output_dir, filename + '.hdf5')
 
     with h5py.File(path, "w") as archive:
-        archive.create_dataset('user_ids', data=uids, compression='gzip')
-        archive.create_dataset('item_ids', data=iids, compression='gzip')
-        archive.create_dataset('ratings', data=ratings, compression='gzip')
-        archive.create_dataset('timestamps', data=timestamps,
+        archive.create_dataset('user_id', data=uids, compression='gzip')
+        archive.create_dataset('item_id', data=iids, compression='gzip')
+        archive.create_dataset('rating', data=ratings, compression='gzip')
+        archive.create_dataset('timestamp', data=timestamps,
                                compression='gzip')
