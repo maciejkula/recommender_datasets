@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+import click
+
+from recommender_datasets import movielens, output
+
+
+@click.command()
+def download_movielens():
+
+    params = (
+        ('movielens_20M',
+         movielens.read_movielens_20M),
+        ('movielens_100k',
+         movielens.read_movielens_100K),
+        ('movielens_1M',
+         movielens.read_movielens_1M),
+        ('movielens_10M',
+         movielens.read_movielens_10M)
+    )
+
+    for out_file_path, data_fnc in params:
+        output.write_csv_data(out_file_path,
+                              data_fnc())
+        output.write_hdf5_data(out_file_path,
+                               data_fnc())
+
+
+if __name__ == '__main__':
+    download_movielens()
