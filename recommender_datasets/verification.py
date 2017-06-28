@@ -9,35 +9,32 @@ import pandas as pd
 from recommender_datasets import _common
 
 
-def _read_csv(fname):
+def _read_csv(fname, columns=('user_id', 'item_id', 'rating', 'timestamp')):
 
     with zipfile.ZipFile(fname, mode='r') as archive:
         with archive.open('data.csv') as datafile:
-            data = pd.read_csv(datafile)
+            df = pd.read_csv(datafile)
+            data = df[list(columns)]
 
     return data
 
 
-def _read_hdf5(fname):
+def _read_hdf5(fname, columns=('user_id', 'item_id', 'rating', 'timestamp')):
 
     with h5py.File(fname, 'r') as data:
-        return (data['/user_id'][:],
-                data['/item_id'][:],
-                data['/rating'][:],
-                data['/timestamp'][:])
+        return {column: data['/{}'.format(column)][:]
+                for column in columns}
 
 
-def verify(path):
+def verify(path, columns=('user_id', 'item_id', 'rating', 'timestamp')):
 
     output_dir = os.path.join(_common.get_data_home(), 'output')
     path = os.path.join(output_dir, path)
 
-    csv_data = _read_csv(path + '.zip')
-    user_ids, item_ids, ratings, timestamps = _read_hdf5(path + '.hdf5')
+    csv_data = _read_csv(path + '.zip', columns)
+    hdf5data = _read_hdf5(path + '.hdf5', columns)
 
-    return (
-        np.all(csv_data['user_id'] == user_ids) and
-        np.all(csv_data['item_id'] == item_ids) and
-        np.all(csv_data['rating'] == ratings) and
-        np.all(csv_data['timestamp'] == timestamps)
+    return all(
+        np.all(csv_data[column] == hdf5data[column])
+        for column in columns
     )

@@ -11,23 +11,26 @@ from recommender_datasets import _common
 SEPARATOR = ','
 
 
-def _to_numpy(data):
+def _array_from_dtype(dtype):
 
-    uids = array.array('i')
-    iids = array.array('i')
-    ratings = array.array('f')
-    timestamps = array.array('i')
+    if dtype == np.float32:
+        return array.array('f')
+    else:
+        return array.array('i')
 
-    for uid, iid, rating, timestamp in data:
-        uids.append(uid)
-        iids.append(iid)
-        ratings.append(rating)
-        timestamps.append(timestamp)
 
-    return (np.array(uids, dtype=np.int32),
-            np.array(iids, dtype=np.int32),
-            np.array(ratings, dtype=np.float32),
-            np.array(timestamps, dtype=np.int32))
+def _to_numpy(data, dtypes):
+
+    arrays = tuple(_array_from_dtype(x)
+                   for x in dtypes)
+
+    for row in data:
+        for (arr, elem) in zip(arrays, row):
+            arr.append(elem)
+
+    return tuple(np.array(arr, dtype=dtype)
+                 for (arr, dtype) in
+                 zip(arrays, dtypes))
 
 
 def _serialize(row):
@@ -55,9 +58,17 @@ def write_csv_data(filename, data,
                 output_file.write(_serialize(row))
 
 
-def write_hdf5_data(filename, data):
+def write_hdf5_data(filename, data,
+                    header=('user_id',
+                            'item_id',
+                            'rating',
+                            'timestamp'),
+                    dtype=(np.int32,
+                           np.int32,
+                           np.float32,
+                           np.int32)):
 
-    uids, iids, ratings, timestamps = _to_numpy(data)
+    arrays = _to_numpy(data, dtype)
 
     output_dir = os.path.join(_common.get_data_home(), 'output')
 
@@ -67,8 +78,5 @@ def write_hdf5_data(filename, data):
     path = os.path.join(output_dir, filename + '.hdf5')
 
     with h5py.File(path, "w") as archive:
-        archive.create_dataset('user_id', data=uids, compression='gzip')
-        archive.create_dataset('item_id', data=iids, compression='gzip')
-        archive.create_dataset('rating', data=ratings, compression='gzip')
-        archive.create_dataset('timestamp', data=timestamps,
-                               compression='gzip')
+        for (arr, name) in zip(arrays, header):
+            archive.create_dataset(name, data=arr, compression='gzip')
