@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 import numpy as np
 
-from recommender_datasets import gowalla, movielens, output, verification
+from recommender_datasets import (amazon,
+                                  gowalla,
+                                  movielens,
+                                  output,
+                                  verification)
 
 
 def download_movielens():
@@ -50,6 +54,27 @@ def download_gowalla():
     verification.verify('gowalla', columns=header)
 
 
+def download_amazon():
+
+    header = ('user_id',
+              'item_id',
+              'rating',
+              'timestamp',
+              'features_item_id',
+              'features_feature_id')
+
+    output.write_hdf5_data('amazon_co_purchasing',
+                           amazon.read_amazon_co_purchasing(),
+                           header=header,
+                           dtype=(np.int32,
+                                  np.int32,
+                                  np.float32,
+                                  np.float32,
+                                  np.int32,
+                                  np.int32))
+
+
 if __name__ == '__main__':
+    download_amazon()
     download_gowalla()
     download_movielens()
