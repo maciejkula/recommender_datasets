@@ -75,6 +75,6 @@ def download_amazon():
 
 
 if __name__ == '__main__':
+    download_movielens()
     download_amazon()
     download_gowalla()
-    download_movielens()
