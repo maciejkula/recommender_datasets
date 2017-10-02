@@ -27,6 +27,20 @@ def _parse_line(line, separator='::'):
     return (int(uid), int(iid), float(rating), int(timestamp))
 
 
+def _make_contiguous(data, separator):
+
+    user_map = {}
+    item_map = {}
+
+    for line in data:
+        uid, iid, rating, timestamp = _parse_line(line, separator=separator)
+
+        uid = user_map.setdefault(uid, len(user_map) + 1)
+        iid = item_map.setdefault(iid, len(item_map) + 1)
+
+        yield uid, iid, rating, timestamp
+
+
 def read_movielens_100K():
 
     zip_path = _common.get_data(URL_PREFIX + URL_100K,
@@ -47,8 +61,10 @@ def read_movielens_1M():
 
     archive_path = os.path.join('ml-1m', 'ratings.dat')
 
-    for line in _read_data(zip_path, archive_path):
-        yield _parse_line(line, separator='::')
+    data = _read_data(zip_path, archive_path)
+
+    for line in _make_contiguous(data, separator='::'):
+        yield line
 
 
 def read_movielens_10M():
@@ -59,8 +75,10 @@ def read_movielens_10M():
 
     archive_path = os.path.join('ml-10M100K', 'ratings.dat')
 
-    for line in _read_data(zip_path, archive_path):
-        yield _parse_line(line, separator='::')
+    data = _read_data(zip_path, archive_path)
+
+    for line in _make_contiguous(data, separator='::'):
+        yield line
 
 
 def read_movielens_20M():
@@ -71,5 +89,7 @@ def read_movielens_20M():
 
     archive_path = os.path.join('ml-20m', 'ratings.csv')
 
-    for line in itertools.islice(_read_data(zip_path, archive_path), 1, None):
-        yield _parse_line(line, separator=',')
+    data = itertools.islice(_read_data(zip_path, archive_path), 1, None)
+
+    for line in _make_contiguous(data, separator=','):
+        yield line
