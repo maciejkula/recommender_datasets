@@ -5,7 +5,8 @@ from recommender_datasets import (amazon,
                                   gowalla,
                                   movielens,
                                   output,
-                                  verification)
+                                  verification,
+                                  yoochoose)
 
 
 def download_movielens():
@@ -74,7 +75,22 @@ def download_amazon():
                                   np.int32))
 
 
+def download_yoochoose():
+
+    header = ('user_id', 'item_id', 'timestamp')
+
+    for variant in ('buys', 'clicks'):
+        data = yoochoose.read_yoochoose(variant)
+        output.write_hdf5_data('yoochoose_{}'.format(variant),
+                               data,
+                               header=header,
+                               dtype=(np.int32,
+                                      np.int32,
+                                      np.float32))
+
+
 if __name__ == '__main__':
+    download_yoochoose()
     download_movielens()
     download_amazon()
     download_gowalla()

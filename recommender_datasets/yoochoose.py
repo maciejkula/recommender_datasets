@@ -1,10 +1,34 @@
+import array
 import datetime
-import itertools
 import os
 import subprocess
 import time
 
+import numpy as np
+
 from recommender_datasets import _common
+
+
+def _to_numpy(data):
+
+    uid_map = {}
+    iid_map = {}
+
+    uids = array.array('i')
+    iids = array.array('i')
+    timestamps = array.array('f')
+
+    for uid, iid, timestamp in data:
+        uid = uid_map.setdefault(uid, len(uid_map) + 1)
+        iid = iid_map.setdefault(iid, len(iid_map) + 1)
+
+        uids.append(uid)
+        iids.append(iid)
+        timestamps.append(timestamp)
+
+    return (np.array(uids, dtype=np.int32),
+            np.array(iids, dtype=np.int32),
+            np.array(timestamps, dtype=np.float32))
 
 
 def _read_data(variant):
@@ -26,7 +50,7 @@ def _read_data(variant):
 
     fname = os.path.join(dest_dir, 'yoochoose-{}.dat'.format(variant))
     with open(fname, 'r') as datafile:
-        for line in itertools.islice(datafile, 0, 100):
+        for line in datafile:
             uid, timestamp, iid = line.split(',')[:3]
 
             timestamp = time.mktime(
@@ -34,13 +58,13 @@ def _read_data(variant):
                                            '%Y-%m-%dT%H:%M:%S.%fZ')
                 .timetuple())
 
-            yield int(uid), timestamp, int(iid)
+            yield int(uid), int(iid), timestamp
 
 
 def read_yoochoose(variant):
 
-    
+    data = _read_data(variant)
 
+    uids, iids, timestamps = _to_numpy(data)
 
-if __name__ == '__main__':
-    data = list(read_yoochoose('buys'))
+    return uids, iids, timestamps
