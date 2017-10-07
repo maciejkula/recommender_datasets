@@ -2,6 +2,7 @@
 import numpy as np
 
 from recommender_datasets import (amazon,
+                                  amazon_jmcauley,
                                   gowalla,
                                   movielens,
                                   output,
@@ -89,7 +90,22 @@ def download_yoochoose():
                                       np.float32))
 
 
+def download_amazon_jmcauley():
+
+    header = ('user_id', 'item_id', 'rating', 'timestamp')
+
+    for variant in amazon_jmcauley.VARIANTS:
+        data = amazon_jmcauley.read_amazon(variant)
+        output.write_hdf5_data('amazon_jmcauley_{}'.format(variant),
+                               data,
+                               header=header,
+                               dtype=(np.int32,
+                                      np.int32,
+                                      np.float32))
+
+
 if __name__ == '__main__':
+    download_amazon_jmcauley()
     download_yoochoose()
     download_movielens()
     download_amazon()
