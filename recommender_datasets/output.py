@@ -68,10 +68,10 @@ def write_hdf5_data(filename, data,
                            np.float32,
                            np.int32)):
 
-    if not isinstance(data[0], np.ndarray):
-        arrays = _to_numpy(data, dtype)
-    else:
+    if isinstance(data, tuple) and isinstance(data[0], np.ndarray):
         arrays = data
+    else:
+        arrays = _to_numpy(data, dtype)
 
     output_dir = os.path.join(_common.get_data_home(), 'output')
 
