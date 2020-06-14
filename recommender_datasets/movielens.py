@@ -10,6 +10,7 @@ URL_100K = 'ml-100k.zip'
 URL_1M = 'ml-1m.zip'
 URL_10M = 'ml-10m.zip'
 URL_20M = 'ml-20m.zip'
+URL_25M = 'ml-25m.zip'
 
 
 def _read_data(path, archive_path):
@@ -88,6 +89,19 @@ def read_movielens_20M():
                                 'movielens_20M.zip')
 
     archive_path = os.path.join('ml-20m', 'ratings.csv')
+
+    data = itertools.islice(_read_data(zip_path, archive_path), 1, None)
+
+    for line in _make_contiguous(data, separator=','):
+        yield line
+
+def read_movielens_25M():
+
+    zip_path = _common.get_data(URL_PREFIX + URL_25M,
+                                'movielens',
+                                'movielens_25M.zip')
+
+    archive_path = os.path.join('ml-25m', 'ratings.csv')
 
     data = itertools.islice(_read_data(zip_path, archive_path), 1, None)
 

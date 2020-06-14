@@ -21,6 +21,8 @@ def download_movielens():
          movielens.read_movielens_10M),
         ('movielens_20M',
          movielens.read_movielens_20M),
+        ('movielens_25M',
+         movielens.read_movielens_25M),
     )
 
     for out_file_path, data_fnc in params:
